@@ -1,34 +1,117 @@
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
   background-color: #f0f0f0;
-  margin: 0;
-  padding: 0;
+  color: #333;
+  transition: background-color 0.3s, color 0.3s;
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
 }
+
+/* Ensure full viewport height */
+html,
+body {
+  height: 100%;
+}
+
 .container {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 90%; /* Adjust max-width for responsiveness */
+  margin: 0 auto; /* Center the container horizontally */
   padding: 20px;
-  background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: background-color 0.3s;
 }
-h1 {
-  color: #333;
-  margin-top: 20px;
+.dark-mode {
+  background-color: #333;
+  color: #f0f0f0;
 }
-#clock {
-  font-size: 2em;
-  margin-top: 20px;
-  color: #333;
+
+.dark-mode .container {
+  background-color: #444;
 }
-#info {
-  font-size: 1.2em;
-  margin-top: 20px;
-  color: #666;
+
+.header h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-#time {
-  font-size: 1.5em;
-  margin-top: 20px;
-  color: #333;
+
+.header i {
+  margin-right: 10px;
+}
+
+.clock,
+.warning {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.clock p,
+.warning p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock i {
+  margin-right: 10px; /* Add space between icon and text */
+}
+
+.warning {
+  color: red;
+}
+
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 25px;
+  background-color: #ccc;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"]:checked + .toggle {
+  background-color: #66bb6a; /* Green color when checked */
+}
+
+input[type="checkbox"]:checked + .toggle::before {
+  transform: translateX(25px);
+}
+
+.dark-mode .toggle {
+  background-color: #666;
+}
+
+.dark-mode input[type="checkbox"]:checked + .toggle {
+  background-color: #4caf50;
 }
