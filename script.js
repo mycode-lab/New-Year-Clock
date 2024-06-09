@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newYear = new Date(new Date().getFullYear() + 1, 0, 1);
     let correctedTime = null;
     let lastServerCheck = 0;
-    const serverCheckInterval = 60 * 1000; // Check every minute
+    const serverCheckInterval = 5 * 60 * 1000; // Check every 5 minutes
 
     function updateTime() {
         let now = correctedTime ? new Date(correctedTime.getTime() + (Date.now() - lastServerCheck)) : new Date();
@@ -31,13 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dayTodayEl.innerHTML = `<i class="fas fa-calendar-week"></i> Today is: ${dayTodayStr}`;
         newYearDateEl.innerHTML = `<i class="fas fa-calendar"></i> New Year Date: ${newYear.toLocaleDateString()}`;
         newYearDayEl.innerHTML = `<i class="fas fa-calendar-day"></i> New Year Day: ${newYear.toLocaleDateString(undefined, { weekday: 'long' })}`;
+
         const timeLeft = newYear - now;
-        const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const monthsLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24 * 30.44)); // Approximate month length
+        const daysLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
         const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-        countdownEl.innerHTML = ` <i class="fas fa-hourglass-half"></i> Time left for New Year: ${daysLeft}d ${hoursLeft}h ${minutesLeft}m ${secondsLeft}s`;
+        countdownEl.innerHTML = `<i class="fas fa-hourglass-half"></i> Time left for New Year: ${monthsLeft}m ${daysLeft}d ${hoursLeft}h ${minutesLeft}m ${secondsLeft}s`;
 
         if (Date.now() - lastServerCheck > serverCheckInterval) {
             checkTimeWithServer();
@@ -80,11 +82,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timeDifference > 1) {
                 warningEl.style.display = 'block';
                 const formattedTimeDifference = formatTimeDifference(Math.floor(timeDifference));
-                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Time difference detected! Your time may be incorrect.`;
+                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Time difference detected! Your time may be incorrect by ${formattedTimeDifference}.`;
                 correctedTime = serverTime;
                 lastServerCheck = Date.now();
             } else {
                 warningEl.style.display = 'none';
+            }
+
+            const serverDate = new Date(serverTime.toDateString());
+            const localDate = new Date(localTime.toDateString());
+            const dateDifference = Math.abs((serverDate - localDate) / (1000 * 60 * 60 * 24));
+
+            if (dateDifference > 0) {
+                warningEl.style.display = 'block';
+                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Date difference detected! Your date may be incorrect by ${dateDifference} day(s).`;
+                correctedTime = serverTime;
+                lastServerCheck = Date.now();
             }
         } catch (error) {
             console.error('Error fetching server time:', error);
@@ -94,27 +107,38 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleOnlineStatus() {
         const isOnline = navigator.onLine;
         if (isOnline) {
-            checkTimeWithServer(); // If online, check time with server
+            checkTimeWithServer();
         } else {
             warningEl.style.display = 'block';
             const localTime = new Date();
             const localTimeStr = localTime.toLocaleTimeString();
             const dateTodayStr = localTime.toLocaleDateString();
             const timeDifference = Math.abs(localTime - new Date()) / 1000;
+
             if (timeDifference > 1) {
-                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You are offline. Your device time is being used. Please note that the time may be incorrect.`;
+                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You are offline. Your device time is being used and may be incorrect by ${formatTimeDifference(Math.floor(timeDifference))}.`;
             } else {
-                warningEl.style.display = 'none'; // Hide warning if difference is within 1 second
+                timeDifferenceEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> You are offline. Your device time is being used.`;
             }
+
+            const serverDate = new Date(localTime.toDateString());
+            const localDate = new Date(new Date().toDateString());
+            const dateDifference = Math.abs((serverDate - localDate) / (1000 * 60 * 60 * 24));
+
+            if (dateDifference > 0) {
+                warningEl.style.display = 'block';
+                timeDifferenceEl.innerHTML += `<br><i class="fas fa-exclamation-triangle"></i> Date difference detected! Your date may be incorrect by ${dateDifference} day(s).`;
+            }
+
             localTimeEl.innerHTML = `<i class="fas fa-clock"></i> Local Time: ${localTimeStr}`;
             dateTodayEl.innerHTML = `<i class="fas fa-calendar-day"></i> Today's Date: ${dateTodayStr}`;
         }
     }
 
-    handleOnlineStatus(); // Check online status when the page loads
+    handleOnlineStatus();
 
-    window.addEventListener('online', handleOnlineStatus); // Listen for online event
-    window.addEventListener('offline', handleOnlineStatus); // Listen for offline event
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
 
-    setInterval(updateTime, 1000); // Update time every second
+    setInterval(updateTime, 1000);
 });
