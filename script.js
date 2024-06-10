@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function formatTimeDifference(seconds) {
+function formatTimeDifference(seconds) {
     const days = Math.floor(seconds / (24 * 60 * 60));
     seconds %= 24 * 60 * 60;
     const hours = Math.floor(seconds / (60 * 60));
@@ -68,14 +68,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const minutes = Math.floor(seconds / 60);
     seconds %= 60;
 
-    let result = "";
-    if (days > 0) result += `${days}d `;
-    if (hours > 0) result += `${hours}h `;
-    if (minutes > 0) result += `${minutes}m `;
-    if (seconds > 0) result += `${seconds}s`;
+    let result = '';
+    if (days === 0) { // Only include days if time difference is less than 24 hours
+        if (hours > 0) result += `${hours}h `;
+        if (minutes > 0 || hours > 0) result += `${minutes}m `;
+        if (seconds > 0 || minutes > 0 || hours > 0) result += `${seconds}s`;
+    }
 
     return result.trim();
-  }
+}
 
   function toggleMode() {
     darkMode = !darkMode;
